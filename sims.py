@@ -6,7 +6,9 @@ import argparse
 class MatrixSensing(object):
     def __init__(self, d, r, eta):
         m = 5 * d * r
-        self.matrices = np.random.randn(m, d, d)
+        matrices = np.random.randn(m, d, d)
+        matrices_T = np.transpose(matrices, (0, 2, 1))
+        self.matrices = (matrices + matrices_T) / 2
         self.matrices_T = np.transpose(self.matrices, (0, 2, 1))
 
         U = np.random.randn(d, r)
