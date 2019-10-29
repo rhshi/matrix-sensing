@@ -53,6 +53,9 @@ class MatrixSensing(object):
         for i in range(iters):
             if i % print_freq == 0:
                 print("Iteration: {}".format(i))
+                print("Train error: {}".format(self.train_error(U)))
+                print("Test error: {}".format(self.test_error(U)))
+                print('----------------------')
             U = self.step(U)
 
         return U
