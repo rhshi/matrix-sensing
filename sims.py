@@ -36,13 +36,11 @@ class MatrixSensing(object):
         return np.matmul(self.identity - self.eta * self.M_t(U), U)
 
     def train_error(self, U):
-        numerator = 0
-        denominator = 0
-        for A in self.matrices:
-            b = np.linalg.norm(np.matmul(A.T, self.X_star))
-            X = np.matmul(U, U.T)
-            numerator += (np.linalg.norm(np.matmul(A.T, X)) - b) ** 2
-            denominator += b ** 2
+        X = np.matmul(U, U.T)
+        inner_product = np.trace(np.matmul(self.matrices_T, X), axis1=1, axis2=2)
+        b = np.trace(np.matmul(self.matrices_T, self.X_star), axis1=1, axis2=2)
+        numerator = np.sum((inner_product - b) ** 2)
+        denominator = np.sum(b ** 2)
 
         return np.sqrt(numerator / denominator)
 
@@ -50,9 +48,11 @@ class MatrixSensing(object):
         X = np.matmul(U, U.T)
         return np.linalg.norm(X - self.X_star) / np.linalg.norm(self.X_star)
 
-    def go(self, alpha, iters):
+    def go(self, alpha, iters, print_freq):
         U = alpha * self.identity
-        for _ in range(iters):
+        for i in range(iters):
+            if i % print_freq == 0:
+                print("Iteration: {}".format(i))
             U = self.step(U)
 
         return U
@@ -65,11 +65,12 @@ def main():
     parser.add_argument('--eta', type=float, default=0.0025)
     parser.add_argument('--alpha', type=float, default=1.0)
     parser.add_argument('--iters', type=float, default=int(10e4))
+    parser.add_argument('--print_freq', type=int, default=100)
 
     args = parser.parse_args()
 
     sim = MatrixSensing(args.d, args.r, args.eta)
-    U = sim.go(args.alpha, args.iters)
+    U = sim.go(args.alpha, args.iters, args.print_freq)
 
     print("Train error: {}".format(sim.train_error(U)))
     print("Test error: {}".format(sim.test_error(U)))
