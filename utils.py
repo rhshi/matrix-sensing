@@ -8,6 +8,9 @@ class Logger(object):
 			os.mkdir("logs")
 
 		self.log_file = "logs/{}.txt".format(log_file)
+		if os.path.exists(self.log_file):
+			os.remove(self.log_file)
+
 		os.mknod(self.log_file)
 
 	def log(self, string):
