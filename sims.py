@@ -6,7 +6,8 @@ import argparse
 class MatrixSensing(object):
     def __init__(self, d, r, eta):
         m = 5 * d * r
-        self.matrices = [np.random.randn(d, d) for _ in range(m)]
+        self.matrices = np.random.randn(m, d, d)
+        self.matrices_T = np.transpose(self.matrices, (0, 2, 1))
 
         U = np.random.randn(d, r)
         U_normalized = normalize(U, norm='l2', axis=0)
@@ -18,13 +19,18 @@ class MatrixSensing(object):
         self.identity = np.identity(d)
 
     def M_t(self, U):
-        total = np.zeros((self.d, self.d))
-        for A in self.matrices:
-            X = np.matmul(U, U.T)
-            matrix_product = np.matmul(A.T, X - self.X_star)
-            total += np.linalg.norm(matrix_product) * A
+        X = np.matmul(U, U.T)
+        matmul = np.matmul(self.matrices_T, X - self.X_star)
+        inner_product = np.trace(matmul, axis1=1, axis2=2)
+        prods = inner_product.reshape(-1, 1, 1) * self.matrices
 
-        return total / len(self.matrices)
+        # total = np.zeros((self.d, self.d))
+        # for A in self.matrices:
+        #     X = np.matmul(U, U.T)
+        #     matrix_product = np.matmul(A.T, X - self.X_star)
+        #     total += np.linalg.norm(matrix_product) * A
+
+        return np.mean(prods, axis=0)
 
     def step(self, U):
         return np.matmul(self.identity - self.eta * self.M_t(U), U)
