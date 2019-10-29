@@ -1,10 +1,14 @@
 import numpy as np 
 from sklearn.preprocessing import normalize
 import argparse
+from utils import Logger
 
 
 class MatrixSensing(object):
-    def __init__(self, d, r, eta):
+    def __init__(self, d, r, eta, log_file):
+
+        self.logger = Logger(log_file)
+
         m = 5 * d * r
         matrices = np.random.randn(m, d, d)
         matrices_T = np.transpose(matrices, (0, 2, 1))
@@ -18,6 +22,7 @@ class MatrixSensing(object):
 
         self.eta = eta
         self.d = d
+        self.r = r
         self.identity = np.identity(d)
 
     def M_t(self, U):
@@ -50,35 +55,50 @@ class MatrixSensing(object):
         X = np.matmul(U, U.T)
         return np.linalg.norm(X - self.X_star) / np.linalg.norm(self.X_star)
 
-    def go(self, alpha, iters, print_freq):
+    def go(self, alpha, iters, log_freq):
+
+        self.logger.log("Parameters:")
+        self.logger.log("dimension: {}".format(self.d))
+        self.logger.log("rank: {}".format(self.r))
+        self.logger.log("# sensing matrices: {}".format(5 * self.d * self.r))
+        self.logger.log("lr: {}".format(self.eta))
+        self.logger.log("alpha: {}".format(alpha))
+        self.logger.log("iters: {}".format(iters))
+        self.logger.log("----------------------")
+
         U = alpha * self.identity
         for i in range(iters):
-            if i % print_freq == 0:
-                print("Iteration: {}".format(i))
-                print("Train error: {}".format(self.train_error(U)))
-                print("Test error: {}".format(self.test_error(U)))
-                print('----------------------')
+            if i % log_freq == 0:
+                self.logger.log("Iteration: {}".format(i))
+                self.logger.log("Train error: {}".format(self.train_error(U)))
+                self.logger.log("Test error: {}".format(self.test_error(U)))
+                self.logger.log("----------------------")
             U = self.step(U)
+
+        self.logger.log("----------------------")
+        self.logger.log("Final")
+        self.logger.log("Train error: {}".format(self.train_error(U)))
+        self.logger.log("Test error: {}".format(self.test_error(U)))
+        self.logger.log("----------------------")
+        self.logger.log("")
 
         return U
 
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument('log_file', type=str)
     parser.add_argument('-d', type=int, default=100)
     parser.add_argument('-r', type=int, default=5)
     parser.add_argument('--eta', type=float, default=0.0025)
     parser.add_argument('--alpha', type=float, default=1.0)
-    parser.add_argument('--iters', type=float, default=int(1e4))
-    parser.add_argument('--print_freq', type=int, default=100)
+    parser.add_argument('--iters', type=int, default=int(1e4))
+    parser.add_argument('--log_freq', type=int, default=250)
 
     args = parser.parse_args()
 
-    sim = MatrixSensing(args.d, args.r, args.eta)
-    U = sim.go(args.alpha, args.iters, args.print_freq)
-
-    print("Train error: {}".format(sim.train_error(U)))
-    print("Test error: {}".format(sim.test_error(U)))
+    sim = MatrixSensing(args.d, args.r, args.eta, args.log_file)
+    U = sim.go(args.alpha, args.iters, args.log_freq)
 
     return
 
