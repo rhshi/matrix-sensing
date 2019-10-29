@@ -67,7 +67,7 @@ def main():
     parser.add_argument('-r', type=int, default=5)
     parser.add_argument('--eta', type=float, default=0.0025)
     parser.add_argument('--alpha', type=float, default=1.0)
-    parser.add_argument('--iters', type=float, default=int(10e4))
+    parser.add_argument('--iters', type=float, default=int(1e4))
     parser.add_argument('--print_freq', type=int, default=100)
 
     args = parser.parse_args()
