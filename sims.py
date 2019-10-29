@@ -52,8 +52,7 @@ class MatrixSensing(object):
 
     def go(self, alpha, iters):
         U = alpha * self.identity
-        for i in range(iters):
-            print(i)
+        for _ in range(iters):
             U = self.step(U)
 
         return U
