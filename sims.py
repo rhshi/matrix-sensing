@@ -62,7 +62,7 @@ class AsymmetricMS(MatrixSensing):
     def step(self, U, V):
         M_t = self.M_t(U, V)
         new_U = U - self.eta * np.matmul(M_t, V)
-        new_V = V - self.eta * np.matmul(M_t, U)
+        new_V = V - self.eta * np.matmul(M_t.T, U)
         return new_U, new_V
 
     def go(self, alpha, iters, log_freq):
