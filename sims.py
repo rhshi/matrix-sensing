@@ -102,7 +102,7 @@ class AsymmetricMS(MatrixSensing):
                     self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
                     self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v)))
                     self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
-                    if self.rank == 1:
+                    if self.r == 1:
                         self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
                 self.logger.log("----------------------")
             U, V = self.step(U, V)
