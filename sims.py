@@ -120,9 +120,9 @@ class AsymmetricMS(MatrixSensing):
             err_v = np.matmul(self.identity - id_v, V)
             assert np.allclose(np.outer(self.u_star, rew_u) + err_u, U)
             assert np.allclose(np.outer(self.v_star, rew_v) + err_v, V)
-            self.logger.log("Reward U: {}".format(np.linalg.norm(rew_u, rew_u)))
+            self.logger.log("Reward U: {}".format(np.linalg.norm(rew_u)))
             self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
-            self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v, rew_v)))
+            self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v)))
             self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
             if self.r == 1:
                 self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
