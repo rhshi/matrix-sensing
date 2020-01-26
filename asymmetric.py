@@ -20,4 +20,4 @@ class AsymmetricPopulation(AsymmetricMS):
         diff = np.matmul(U, V.T) - self.X_star
         new_U = U - 2 * self.eta * np.matmul(diff, V)
         new_V = V - 2 * self.eta * np.matmul(diff.T, U) 
-        return U - 2 * self.eta * np.matmul(diff, U)
+        return new_U, new_V
