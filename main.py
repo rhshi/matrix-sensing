@@ -14,7 +14,7 @@ def main():
     parser.add_argument('--alpha', type=float, default=1.0)
     parser.add_argument('--iters', type=int, default=int(1e4))
     parser.add_argument('--log_freq', type=int, default=250)
-    parser.add_argument('--verbose', type=bool, default=False)
+    parser.add_argument('--verbose', action='store_true')
 
     args = parser.parse_args()
 
