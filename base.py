@@ -18,11 +18,6 @@ class MatrixSensing(object):
         self.r = r
         self.identity = np.identity(d)
 
-        # U = np.random.randn(d, r)
-        # U_normalized = normalize(U, norm='l2', axis=0)
-
-        # self.X_star = np.matmul(U_normalized, U_normalized.T)
-
     def M_t(self, U, V):
         X = np.matmul(U, V.T)
         matmul = np.matmul(self.matrices_T, X - self.X_star)

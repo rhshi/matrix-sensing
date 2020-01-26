@@ -9,10 +9,12 @@ class SymmetricMS(MatrixSensing):
     def __init__(self, d, r, eta, log_file):
         super().__init__(d, r, eta, log_file)
 
-        U = np.random.randn(d, r)
-        U_normalized = normalize(U, norm='l2', axis=0)
+        u = np.random.randn(d, r)
+        self.u_star = normalize(u, norm='l2', axis=0)
 
-        self.X_star = np.matmul(U_normalized, U_normalized.T)
+        self.X_star = np.matmul(self.u_star, self.u_star.T)
+
+        self.r = r
 
     def step(self, U):
         return np.matmul(self.identity - self.eta * self.M_t(U, U), U)
@@ -33,6 +35,11 @@ class SymmetricMS(MatrixSensing):
                 self.logger.log("Iteration: {}".format(i))
                 self.logger.log("Train error: {}".format(self.train_error(U, U)))
                 self.logger.log("Test error: {}".format(self.test_error(U, U)))
+                if self.r == 1:
+                    reward = np.squeeze(np.matmul(U.T, self.u_star))
+                    error = np.matmul(self.identity - self.X_star, U) 
+                    self.logger.log("Reward: {}".format(np.sqrt(np.dot(reward, reward))))
+                    self.logger.log("Error: {}".format(np.trace(np.matmul(error.T, error))))
                 self.logger.log("----------------------")
             U = self.step(U)
 
@@ -97,7 +104,7 @@ class AsymmetricMS(MatrixSensing):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('log_file', type=str)
-    parser.add_argument('--mode', tpe=str, default="sym")
+    parser.add_argument('--mode', type=str, default="sym")
     parser.add_argument('-d', type=int, default=100)
     parser.add_argument('-r', type=int, default=5)
     parser.add_argument('--eta', type=float, default=0.0025)
