@@ -20,16 +20,16 @@ def main():
 
     if args.mode == "sym":
         if args.risk == "empirical":
-            sim = SymmetricEmpirical(args.d, args.r, args.eta, args.log_file)
+            sim = SymmetricEmpirical(args.d, args.r, args.eta, args.log_file, args.verbose)
         elif args.risk == "population":
-            sim = SymmetricPopulation(args.d, args.r, args.eta, args.log_file)
+            sim = SymmetricPopulation(args.d, args.r, args.eta, args.log_file, args.verbose)
     elif args.mode == "asym":
         if args.risk == "empirical":
-            sim = AsymmetricEmpirical(args.d, args.r, args.eta, args.log_file)
+            sim = AsymmetricEmpirical(args.d, args.r, args.eta, args.log_file, args.verbose)
         elif args.risk == "population":
-            sim = AsymmetricPopulation(args.d, args.r, args.eta, args.log_file)
+            sim = AsymmetricPopulation(args.d, args.r, args.eta, args.log_file, args.verbose)
     
-    U = sim.go(args.alpha, args.iters, args.log_freq, args.verbose)
+    U = sim.go(args.alpha, args.iters, args.log_freq)
 
     return
 
