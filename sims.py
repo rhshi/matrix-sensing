@@ -1,4 +1,4 @@
-import argparse
+# import argparse
 import numpy as np
 from sklearn.preprocessing import normalize
 from base import MatrixSensing
@@ -14,11 +14,8 @@ class SymmetricMS(MatrixSensing):
 
         self.X_star = np.matmul(self.u_star, self.u_star.T)
 
-        self.r = r
-
-    def step(self, U):
-        return np.matmul(self.identity - self.eta * self.M_t(U, U), U)
-
+    def step(self):
+        raise NotImplementedError
 
     def go(self, alpha, iters, log_freq):
         self.logger.log_init(
@@ -36,10 +33,11 @@ class SymmetricMS(MatrixSensing):
                 self.logger.log("Train error: {}".format(self.train_error(U, U)))
                 self.logger.log("Test error: {}".format(self.test_error(U, U)))
                 if self.r == 1:
-                    reward = np.squeeze(np.matmul(U.T, self.u_star))
-                    error = np.matmul(self.identity - self.X_star, U) 
-                    self.logger.log("Reward: {}".format(np.sqrt(np.dot(reward, reward))))
-                    self.logger.log("Error: {}".format(np.trace(np.matmul(error.T, error))))
+                    rew = np.squeeze(np.matmul(U.T, self.u_star))
+                    err = np.matmul(self.identity - self.X_star, U) 
+                    assert np.allclose(np.outer(self.u_star, rew) + err, U)
+                    self.logger.log("Reward: {}".format(np.linalg.norm(rew)))
+                    self.logger.log("Error: {}".format(np.linalg.norm(err) ** 2))
                 self.logger.log("----------------------")
             U = self.step(U)
 
@@ -47,6 +45,12 @@ class SymmetricMS(MatrixSensing):
         self.logger.log("Final")
         self.logger.log("Train error: {}".format(self.train_error(U, U)))
         self.logger.log("Test error: {}".format(self.test_error(U, U)))
+        if self.r == 1:
+            rew = np.squeeze(np.matmul(U.T, self.u_star))
+            err = np.matmul(self.identity - self.X_star, U) 
+            assert np.allclose(np.outer(self.u_star, rew) + err, U)
+            self.logger.log("Reward: {}".format(np.linalg.norm(rew)))
+            self.logger.log("Error: {}".format(np.linalg.norm(err) ** 2))
         self.logger.log("----------------------")
         self.logger.log("")
 
@@ -58,19 +62,16 @@ class AsymmetricMS(MatrixSensing):
     def __init__(self, d, r, eta, log_file):
         super().__init__(d, r, eta, log_file)
 
-        U = np.random.randn(d, r)
-        U_normalized = normalize(U, norm='l2', axis=0)
+        u = np.random.randn(d, r)
+        self.u_star = normalize(u, norm='l2', axis=0)
 
-        V = np.random.randn(d, r)
-        V_normalized = normalize(V, norm='l2', axis=0)
+        v = np.random.randn(d, r)
+        self.v_star = normalize(v, norm='l2', axis=0)
 
-        self.X_star = np.matmul(U_normalized, V_normalized.T)
+        self.X_star = np.matmul(self.u_star, self.v_star.T)
 
-    def step(self, U, V):
-        M_t = self.M_t(U, V)
-        new_U = U - self.eta * np.matmul(M_t, V)
-        new_V = V - self.eta * np.matmul(M_t.T, U)
-        return new_U, new_V
+    def step(self):
+        raise NotImplementedError
 
     def go(self, alpha, iters, log_freq):
         self.logger.log_init(
@@ -88,6 +89,20 @@ class AsymmetricMS(MatrixSensing):
                 self.logger.log("Iteration: {}".format(i))
                 self.logger.log("Train error: {}".format(self.train_error(U, V)))
                 self.logger.log("Test error: {}".format(self.test_error(U, V)))
+                if self.r == 1:
+                    id_u = np.matmul(self.u_star, self.u_star.T)
+                    id_v = np.matmul(self.v_star, self.v_star.T)
+                    rew_u = np.squeeze(np.matmul(U.T, self.u_star))
+                    rew_v = np.squeeze(np.matmul(V.T, self.v_star))
+                    err_u = np.matmul(self.identity - self.id_u, U) 
+                    err_v = np.matmul(self.identity - self.id_v, V)
+                    assert np.allclose(np.outer(self.u_star, rew_u) + err_u, U)
+                    assert np.allclose(np.outer(self.v_star, rew_v) + err_v, V)
+                    self.logger.log("Reward U: {}".format(np.linalg.norm(rew_u, rew_u))
+                    self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
+                    self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v, rew_v))
+                    self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
+                    self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
                 self.logger.log("----------------------")
             U, V = self.step(U, V)
 
@@ -95,34 +110,48 @@ class AsymmetricMS(MatrixSensing):
         self.logger.log("Final")
         self.logger.log("Train error: {}".format(self.train_error(U, V)))
         self.logger.log("Test error: {}".format(self.test_error(U, V)))
+        if self.r == 1:
+            id_u = np.matmul(self.u_star, self.u_star.T)
+            id_v = np.matmul(self.v_star, self.v_star.T)
+            rew_u = np.squeeze(np.matmul(U.T, self.u_star))
+            rew_v = np.squeeze(np.matmul(V.T, self.v_star))
+            err_u = np.matmul(self.identity - self.id_u, U) 
+            err_v = np.matmul(self.identity - self.id_v, V)
+            assert np.allclose(np.outer(self.u_star, rew_u) + err_u, U)
+            assert np.allclose(np.outer(self.v_star, rew_v) + err_v, V)
+            self.logger.log("Reward U: {}".format(np.linalg.norm(rew_u, rew_u))
+            self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
+            self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v, rew_v))
+            self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
+            self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
         self.logger.log("----------------------")
         self.logger.log("")
 
         return U
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('log_file', type=str)
-    parser.add_argument('--mode', type=str, default="sym")
-    parser.add_argument('-d', type=int, default=100)
-    parser.add_argument('-r', type=int, default=5)
-    parser.add_argument('--eta', type=float, default=0.0025)
-    parser.add_argument('--alpha', type=float, default=1.0)
-    parser.add_argument('--iters', type=int, default=int(1e4))
-    parser.add_argument('--log_freq', type=int, default=250)
+# def main():
+#     parser = argparse.ArgumentParser()
+#     parser.add_argument('log_file', type=str)
+#     parser.add_argument('--mode', type=str, default="sym")
+#     parser.add_argument('-d', type=int, default=100)
+#     parser.add_argument('-r', type=int, default=5)
+#     parser.add_argument('--eta', type=float, default=0.0025)
+#     parser.add_argument('--alpha', type=float, default=1.0)
+#     parser.add_argument('--iters', type=int, default=int(1e4))
+#     parser.add_argument('--log_freq', type=int, default=250)
 
-    args = parser.parse_args()
+#     args = parser.parse_args()
 
-    if args.mode == "sym":
-        sim = SymmetricMS(args.d, args.r, args.eta, args.log_file)
-    elif args.mode == "asym":
-        sim = AsymmetricMS(args.d, args.r, args.eta, args.log_file)
+#     if args.mode == "sym":
+#         sim = SymmetricMS(args.d, args.r, args.eta, args.log_file)
+#     elif args.mode == "asym":
+#         sim = AsymmetricMS(args.d, args.r, args.eta, args.log_file)
     
-    U = sim.go(args.alpha, args.iters, args.log_freq)
+#     U = sim.go(args.alpha, args.iters, args.log_freq)
 
-    return
+#     return
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
