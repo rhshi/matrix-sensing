@@ -7,7 +7,7 @@ from base import MatrixSensing
 class SymmetricMS(MatrixSensing):
 
     def __init__(self, *args):
-        super().__init__(args)
+        super().__init__(*args)
 
         u = np.random.randn(self.d, self.r)
         self.u_star = normalize(u, norm='l2', axis=0)
@@ -60,7 +60,7 @@ class SymmetricMS(MatrixSensing):
 class AsymmetricMS(MatrixSensing):
 
     def __init__(self, *args):
-        super().__init__(args)
+        super().__init__(*args)
 
         u = np.random.randn(self.d, self.r)
         self.u_star = normalize(u, norm='l2', axis=0)
