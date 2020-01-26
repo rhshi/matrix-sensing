@@ -18,4 +18,6 @@ class AsymmetricPopulation(AsymmetricMS):
 
     def step(self, U, V):
         diff = np.matmul(U, V.T) - self.X_star
+        new_U = U - 2 * self.eta * np.matmul(diff, V)
+        new_V = V - 2 * self.eta * np.matmul(diff.T, U) 
         return U - 2 * self.eta * np.matmul(diff, U)
