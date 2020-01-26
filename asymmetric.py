@@ -3,8 +3,8 @@ from sims import AsymmetricMS
 
 
 class AsymmetricEmpirical(AsymmetricMS):
-    def __init__(self, d, r, eta, log_file):
-        super().__init__(d, r, eta, log_file)
+    def __init__(self, *args):
+        super().__init__(args)
 
     def step(self, U, V):
         M_t = self.M_t(U, V)
@@ -13,8 +13,8 @@ class AsymmetricEmpirical(AsymmetricMS):
         return new_U, new_V
 
 class AsymmetricPopulation(AsymmetricMS):
-    def __init__(self, d, r, eta, log_file):
-        super().__init__(d, r, eta, log_file)
+    def __init__(self, *args):
+        super().__init__(args)
 
     def step(self, U, V):
         diff = np.matmul(U, V.T) - self.X_star

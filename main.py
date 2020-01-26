@@ -14,6 +14,7 @@ def main():
     parser.add_argument('--alpha', type=float, default=1.0)
     parser.add_argument('--iters', type=int, default=int(1e4))
     parser.add_argument('--log_freq', type=int, default=250)
+    parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
 
@@ -28,7 +29,7 @@ def main():
         elif args.risk == "population":
             sim = AsymmetricPopulation(args.d, args.r, args.eta, args.log_file)
     
-    U = sim.go(args.alpha, args.iters, args.log_freq)
+    U = sim.go(args.alpha, args.iters, args.log_freq, args.verbose)
 
     return
 

@@ -6,10 +6,10 @@ from base import MatrixSensing
 
 class SymmetricMS(MatrixSensing):
 
-    def __init__(self, d, r, eta, log_file):
-        super().__init__(d, r, eta, log_file)
+    def __init__(self, *args):
+        super().__init__(args)
 
-        u = np.random.randn(d, r)
+        u = np.random.randn(self.d, self.r)
         self.u_star = normalize(u, norm='l2', axis=0)
 
         self.X_star = np.matmul(self.u_star, self.u_star.T)
@@ -32,7 +32,7 @@ class SymmetricMS(MatrixSensing):
                 self.logger.log("Iteration: {}".format(i))
                 self.logger.log("Train error: {}".format(self.train_error(U, U)))
                 self.logger.log("Test error: {}".format(self.test_error(U, U)))
-                if self.r == 1:
+                if self.verbose:
                     rew = np.squeeze(np.matmul(U.T, self.u_star))
                     err = np.matmul(self.identity - self.X_star, U) 
                     assert np.allclose(np.outer(self.u_star, rew) + err, U)
@@ -45,7 +45,7 @@ class SymmetricMS(MatrixSensing):
         self.logger.log("Final")
         self.logger.log("Train error: {}".format(self.train_error(U, U)))
         self.logger.log("Test error: {}".format(self.test_error(U, U)))
-        if self.r == 1:
+        if self.verbose:
             rew = np.squeeze(np.matmul(U.T, self.u_star))
             err = np.matmul(self.identity - self.X_star, U) 
             assert np.allclose(np.outer(self.u_star, rew) + err, U)
@@ -59,13 +59,13 @@ class SymmetricMS(MatrixSensing):
 
 class AsymmetricMS(MatrixSensing):
 
-    def __init__(self, d, r, eta, log_file):
-        super().__init__(d, r, eta, log_file)
+    def __init__(self, *args):
+        super().__init__(args)
 
-        u = np.random.randn(d, r)
+        u = np.random.randn(self.d, self.r)
         self.u_star = normalize(u, norm='l2', axis=0)
 
-        v = np.random.randn(d, r)
+        v = np.random.randn(self.d, self.r)
         self.v_star = normalize(v, norm='l2', axis=0)
 
         self.X_star = np.matmul(self.u_star, self.v_star.T)
@@ -89,7 +89,7 @@ class AsymmetricMS(MatrixSensing):
                 self.logger.log("Iteration: {}".format(i))
                 self.logger.log("Train error: {}".format(self.train_error(U, V)))
                 self.logger.log("Test error: {}".format(self.test_error(U, V)))
-                if self.r == 1:
+                if self.verbose:
                     id_u = np.matmul(self.u_star, self.u_star.T)
                     id_v = np.matmul(self.v_star, self.v_star.T)
                     rew_u = np.squeeze(np.matmul(U.T, self.u_star))
@@ -102,7 +102,8 @@ class AsymmetricMS(MatrixSensing):
                     self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
                     self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v, rew_v)))
                     self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
-                    self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
+                    if self.rank == 1:
+                        self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
                 self.logger.log("----------------------")
             U, V = self.step(U, V)
 
@@ -110,7 +111,7 @@ class AsymmetricMS(MatrixSensing):
         self.logger.log("Final")
         self.logger.log("Train error: {}".format(self.train_error(U, V)))
         self.logger.log("Test error: {}".format(self.test_error(U, V)))
-        if self.r == 1:
+        if self.verbose:
             id_u = np.matmul(self.u_star, self.u_star.T)
             id_v = np.matmul(self.v_star, self.v_star.T)
             rew_u = np.squeeze(np.matmul(U.T, self.u_star))
@@ -123,7 +124,8 @@ class AsymmetricMS(MatrixSensing):
             self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
             self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v, rew_v)))
             self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
-            self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
+            if self.r == 1:
+                self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
         self.logger.log("----------------------")
         self.logger.log("")
 

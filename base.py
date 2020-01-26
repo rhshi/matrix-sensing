@@ -3,9 +3,11 @@ from utils import Logger
 
 
 class MatrixSensing(object):
-    def __init__(self, d, r, eta, log_file):
+    def __init__(self, d, r, eta, log_file, verbose):
 
         self.logger = Logger(log_file)
+
+        self.verbose = verbose
 
         m = 5 * d * r
         matrices = np.random.randn(m, d, d)
