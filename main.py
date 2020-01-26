@@ -22,8 +22,11 @@ def main():
             sim = SymmetricEmpirical(args.d, args.r, args.eta, args.log_file)
         elif args.risk == "population":
             sim = SymmetricPopulation(args.d, args.r, args.eta, args.log_file)
-    # elif args.mode == "asym":
-    #     sim = AsymmetricMS(args.d, args.r, args.eta, args.log_file)
+    elif args.mode == "asym":
+        if args.risk == "empirical":
+            sim = AsymmetricEmpirical(args.d, args.r, args.eta, args.log_file)
+        elif args.risk == "population":
+            sim = AsymmetricPopulation(args.d, args.r, args.eta, args.log_file)
     
     U = sim.go(args.alpha, args.iters, args.log_freq)
 
