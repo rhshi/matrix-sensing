@@ -4,7 +4,7 @@ from sims import SymmetricMS
 
 class SymmetricEmpirical(SymmetricMS):
     def __init__(self, *args):
-        super().__init__(args)
+        super().__init__(*args)
 
     def step(self, U):
         return np.matmul(self.identity - self.eta * self.M_t(U, U), U)
@@ -12,7 +12,7 @@ class SymmetricEmpirical(SymmetricMS):
 
 class SymmetricPopulation(SymmetricMS):
     def __init__(self, *args):
-        super().__init__(args)
+        super().__init__(*args)
 
     def step(self, U):
         diff = np.matmul(U, U.T) - self.X_star

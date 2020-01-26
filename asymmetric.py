@@ -4,7 +4,7 @@ from sims import AsymmetricMS
 
 class AsymmetricEmpirical(AsymmetricMS):
     def __init__(self, *args):
-        super().__init__(args)
+        super().__init__(*args)
 
     def step(self, U, V):
         M_t = self.M_t(U, V)
@@ -14,7 +14,7 @@ class AsymmetricEmpirical(AsymmetricMS):
 
 class AsymmetricPopulation(AsymmetricMS):
     def __init__(self, *args):
-        super().__init__(args)
+        super().__init__(*args)
 
     def step(self, U, V):
         diff = np.matmul(U, V.T) - self.X_star
