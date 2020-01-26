@@ -1,5 +1,6 @@
 import argparse
 from symmetric import SymmetricEmpirical, SymmetricPopulation
+from asymmetric import AsymmetricEmpirical, AsymmetricPopulation
 
 
 def main():
