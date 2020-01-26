@@ -1,5 +1,5 @@
 import numpy as np
-from sims import SymmetricMS
+from sims import AsymmetricMS
 
 
 class AsymmetricEmpirical(AsymmetricMS):
