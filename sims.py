@@ -95,7 +95,7 @@ class AsymmetricMS(MatrixSensing):
 
         return U, V
 
-    def log(i, U, V):
+    def log(self, i, U, V):
         self.logger.log("Final")
         self.logger.log("Train error: {}".format(self.train_error(U, V)))
         self.logger.log("Test error: {}".format(self.test_error(U, V)))
