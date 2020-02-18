@@ -86,32 +86,21 @@ class AsymmetricMS(MatrixSensing):
         V = alpha * (self.identity + np.random.randn(self.d, self.d))
         for i in range(iters):
             if i % log_freq == 0:
-                self.logger.log("Iteration: {}".format(i))
-                self.logger.log("Train error: {}".format(self.train_error(U, V)))
-                self.logger.log("Test error: {}".format(self.test_error(U, V)))
-                if self.verbose:
-                    id_u = np.matmul(self.u_star, self.u_star.T)
-                    id_v = np.matmul(self.v_star, self.v_star.T)
-                    rew_u = np.squeeze(np.matmul(U.T, self.u_star))
-                    rew_v = np.squeeze(np.matmul(V.T, self.v_star))
-                    err_u = np.matmul(self.identity - id_u, U) 
-                    err_v = np.matmul(self.identity - id_v, V)
-                    assert np.allclose(np.outer(self.u_star, rew_u) + err_u, U)
-                    assert np.allclose(np.outer(self.v_star, rew_v) + err_v, V)
-                    self.logger.log("Reward U: {}".format(np.linalg.norm(rew_u)))
-                    self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
-                    self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v)))
-                    self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
-                    if self.r == 1:
-                        self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
-                self.logger.log("----------------------")
+                self.log(i, U, V)
             U, V = self.step(U, V)
 
         self.logger.log("----------------------")
+        self.log(i, U, V)
+        self.logger.log("")
+
+        return U, V
+
+    def log(i, U, V):
         self.logger.log("Final")
         self.logger.log("Train error: {}".format(self.train_error(U, V)))
         self.logger.log("Test error: {}".format(self.test_error(U, V)))
         if self.verbose:
+            M = np.matmul(U, V) - self.X_star
             id_u = np.matmul(self.u_star, self.u_star.T)
             id_v = np.matmul(self.v_star, self.v_star.T)
             rew_u = np.squeeze(np.matmul(U.T, self.u_star))
@@ -124,36 +113,12 @@ class AsymmetricMS(MatrixSensing):
             self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
             self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v)))
             self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
+            err_inner_u = np.trace(np.matmul(err_u.T, np.matmul(self.identity - id_u, np.matmul(M, V))))
+            err_inner_v = np.trace(np.matmul(err_v.T, np.matmul(self.identity - id_v, np.matmul(M.T, U))))
+            self.logger.log("Error inner U: {}".format(err_inner_u))
+            self.logger.log("Error inner V: {}".format(err_inner_v))
             if self.r == 1:
                 self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
         self.logger.log("----------------------")
-        self.logger.log("")
 
-        return U
-
-
-# def main():
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('log_file', type=str)
-#     parser.add_argument('--mode', type=str, default="sym")
-#     parser.add_argument('-d', type=int, default=100)
-#     parser.add_argument('-r', type=int, default=5)
-#     parser.add_argument('--eta', type=float, default=0.0025)
-#     parser.add_argument('--alpha', type=float, default=1.0)
-#     parser.add_argument('--iters', type=int, default=int(1e4))
-#     parser.add_argument('--log_freq', type=int, default=250)
-
-#     args = parser.parse_args()
-
-#     if args.mode == "sym":
-#         sim = SymmetricMS(args.d, args.r, args.eta, args.log_file)
-#     elif args.mode == "asym":
-#         sim = AsymmetricMS(args.d, args.r, args.eta, args.log_file)
-    
-#     U = sim.go(args.alpha, args.iters, args.log_freq)
-
-#     return
-
-
-# if __name__ == "__main__":
-#     main()
+        return
