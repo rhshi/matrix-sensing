@@ -86,17 +86,17 @@ class AsymmetricMS(MatrixSensing):
         V = alpha * (self.identity + np.random.randn(self.d, self.d))
         for i in range(iters):
             if i % log_freq == 0:
-                self.log(i, U, V)
+                self.logger.log("Iteration: {}".format(i))
+                self.log(U, V)
             U, V = self.step(U, V)
-
         self.logger.log("----------------------")
-        self.log(i, U, V)
+        self.logger.log("Final")
+        self.log(U, V)
         self.logger.log("")
 
         return U, V
 
-    def log(self, i, U, V):
-        self.logger.log("Final")
+    def log(self, U, V):
         self.logger.log("Train error: {}".format(self.train_error(U, V)))
         self.logger.log("Test error: {}".format(self.test_error(U, V)))
         if self.verbose:
@@ -112,9 +112,7 @@ class AsymmetricMS(MatrixSensing):
             self.logger.log("Reward U: {}".format(np.linalg.norm(rew_u)))
             self.logger.log("Error U: {}".format(np.linalg.norm(err_u) ** 2))
             self.logger.log("Reward V: {}".format(np.linalg.norm(rew_v)))
-            self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))
-            print(err_u)
-            print(err_v)
+            self.logger.log("Error V: {}".format(np.linalg.norm(err_v) ** 2))   
             if self.r == 1:
                 self.logger.log("Inner: {}".format(np.dot(rew_u, rew_v)))
         self.logger.log("----------------------")
